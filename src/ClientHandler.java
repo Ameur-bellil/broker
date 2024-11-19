@@ -8,6 +8,7 @@ public class ClientHandler implements Runnable {
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
+    private String clientUsername;
 
     public ClientHandler(Socket socket) {
         try{
@@ -19,11 +20,6 @@ public class ClientHandler implements Runnable {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
-
-    private void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
-
-    }
-
 
     @Override
     public void run() {
@@ -41,7 +37,40 @@ public class ClientHandler implements Runnable {
 
     public void sendMessage(String messageToSend) {
         for(ClientHandler clientHandler : clientHandlers) {
-            clientHandler.sendMessage(messageToSend);
+            try {
+                if(!clientHandler.clientUsername.equals(clientUsername)) {
+                    clientHandler.bufferedWriter.write(messageToSend);
+                    clientHandler.bufferedWriter.newLine();
+                    clientHandler.bufferedWriter.flush();
+                }
+            } catch (IOException e) {
+                closeEverything(socket, bufferedReader, bufferedWriter);
+            }
         }
     }
+
+    public void removeClientHandler() {
+        clientHandlers.remove(this);
+        sendMessage("Server:" + clientUsername + "has left the chat");
+    }
+
+    private void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+        removeClientHandler();
+        try{
+            if(bufferedReader != null) {
+                bufferedReader.close();
+            }
+
+            if(bufferedWriter != null) {
+                bufferedWriter.close();
+            }
+
+            if(socket != null) {
+                socket.close();
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
