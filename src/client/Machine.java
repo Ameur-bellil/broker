@@ -4,8 +4,8 @@ import java.io.*;
 import java.net.*;
 
 public class Machine {
-    private String serverAddress;
-    private int serverPort;
+    private final String serverAddress;
+    private final int serverPort;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
@@ -15,7 +15,7 @@ public class Machine {
         this.serverPort = serverPort;
     }
 
-    public void startClient() {
+    public void startMachine() {
         try {
             socket = new Socket(serverAddress, serverPort);  // Connect to the server
             System.out.println("Connected to the server at " + serverAddress + ":" + serverPort);
@@ -62,7 +62,7 @@ public class Machine {
     public static void main(String[] args) {
         String serverAddress = "127.0.0.1";
         int serverPort = 8888;
-        Machine client = new Machine(serverAddress, serverPort);
-        client.startClient();
+        Machine machine = new Machine(serverAddress, serverPort);
+        machine.startMachine();
     }
 }
