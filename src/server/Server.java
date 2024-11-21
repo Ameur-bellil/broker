@@ -16,12 +16,12 @@ public class Server {
     public void startServer() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started! \uD83D\uDE80 \uD83D\uDE80");
-            System.out.println("Waiting for clients to connect...");
+            System.out.println("Waiting for Machines to connect...");
 
             while (true) {
                 // Accept incoming machine connections
                 Socket socket = serverSocket.accept();
-                System.out.println("New client connected.");
+                System.out.println("New machine connected.");
 
                 // Create a new machine Handler for each machine and add to the list
                 MachineHandler machineHandler = new MachineHandler(socket, this);
