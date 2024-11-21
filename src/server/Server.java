@@ -23,14 +23,14 @@ public class Server {
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected.");
 
-                // Create a new client handler for each machine and add to the list
-                MachineHandler clientHandler = new MachineHandler(socket, this);
+                // Create a new machine Handler for each machine and add to the list
+                MachineHandler machineHandler = new MachineHandler(socket, this);
                 synchronized (machines) {
-                    machines.add(clientHandler);
+                    machines.add(machineHandler);
                 }
 
                 // Start a new thread to handle machine communication
-                Thread thread = new Thread(clientHandler);
+                Thread thread = new Thread(machineHandler);
                 thread.start();
             }
         } catch (IOException e) {
@@ -38,7 +38,7 @@ public class Server {
         }
     }
 
-    // Method to broadcast a message from one machine to all others
+    // Method to forward a message from one machine to all others
     public void forwardMessage(String message, MachineHandler sender) {
         synchronized (machines) {
             for (MachineHandler machine : machines) {
