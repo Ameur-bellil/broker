@@ -1,56 +1,64 @@
 package server;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.time.LocalDateTime;
-import java.util.Scanner;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public class Server {
+    private final int port;
+    private final List<MachineHandler> machines;
 
-    private final int portNumber;
-
-    public Server(int portNUmber) throws IOException {
-        this.portNumber = portNUmber;
+    public Server(int port) {
+        this.port = port;
+        this.machines = new ArrayList<>();
     }
 
     public void startServer() {
-        try(ServerSocket serverSocket = new ServerSocket(portNumber)) {
-            System.out.println("server.Server started!");
-
-            System.out.println("Waiting for a client to connect...");
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server started! \uD83D\uDE80 \uD83D\uDE80");
+            System.out.println("Waiting for clients to connect...");
 
             while (true) {
+                // Accept incoming machine connections
                 Socket socket = serverSocket.accept();
-                System.out.println("New Client connected." + LocalDateTime.now());
-                System.out.println("---------------------");
+                System.out.println("New client connected.");
 
-                //Thread to handle client messages
-                Thread client = new Thread(new server.CommunicationHandler(socket));
+                // Create a new client handler for each machine and add to the list
+                MachineHandler clientHandler = new MachineHandler(socket, this);
+                synchronized (machines) {
+                    machines.add(clientHandler);
+                }
 
-                client.start();
+                // Start a new thread to handle machine communication
+                Thread thread = new Thread(clientHandler);
+                thread.start();
             }
-
-
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Server error: " + e.getMessage());
         }
     }
 
-    public static void main(String[] args) throws  IOException {
-        System.out.print("Pls, enter a port number for this server or press ENTER to use the default port '8888': ");
-        Scanner in = new Scanner(System.in);
-        String portNumber = in.nextLine();
-        in.reset();
-
-        int port = 8888;
-        try {
-            port = Integer.parseInt(portNumber);
-        } catch (Exception ignore) {
+    // Method to broadcast a message from one machine to all others
+    public void forwardMessage(String message, MachineHandler sender) {
+        synchronized (machines) {
+            for (MachineHandler machine : machines) {
+                if (machine != sender) {  // Don't send the message back to the sender
+                    machine.sendMessage(message);
+                }
+            }
         }
-        System.out.println("You can now connect to this server via this port "+ port+"\n");
+    }
+
+    // Remove machine when they disconnect
+    public void removeMachine(MachineHandler machineHandler) {
+        synchronized (machines) {
+            machines.remove(machineHandler);
+        }
+    }
+
+    public static void main(String[] args) {
+        int port = 8888;
         Server server = new Server(port);
         server.startServer();
-
     }
 }
