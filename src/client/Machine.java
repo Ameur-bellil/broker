@@ -60,7 +60,7 @@ public class Machine {
     }
 
     public static void main(String[] args) {
-        String serverAddress = "127.0.0.1";  // Replace with the server machine's IP address
+        String serverAddress = "127.0.0.1";
         int serverPort = 8888;
         Machine client = new Machine(serverAddress, serverPort);
         client.startClient();
