@@ -17,15 +17,14 @@ public class Machine {
 
     public void startMachine() {
         try {
-            socket = new Socket(serverAddress, serverPort);  // Connect to the server
+            socket = new Socket(serverAddress, serverPort);
             System.out.println("Connected to the server at " + serverAddress + ":" + serverPort);
 
             // Set up input and output streams for communication
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);  // Send messages to server
+            out = new PrintWriter(socket.getOutputStream(), true);
 
-            // Start a thread to listen for incoming messages from the server
             Thread listenerThread = new Thread(() -> {
                 try {
                     String message;
@@ -38,14 +37,13 @@ public class Machine {
             });
             listenerThread.start();
 
-            // Read messages from the user and send them to the server
             String userMessage;
             while (true) {
                 userMessage = userInput.readLine();
                 if (userMessage.equalsIgnoreCase("exit")) {
                     break;
                 }
-                out.println(userMessage);  // Send message to server
+                out.println(userMessage);
             }
 
         } catch (IOException e) {
@@ -60,9 +58,9 @@ public class Machine {
     }
 
     public static void main(String[] args) {
-        String serverAddress = "127.0.0.1";
-        int serverPort = 8888;
-        Machine machine = new Machine(serverAddress, serverPort);
+        String proxyAddress = "127.0.0.1";
+        int proxyPort = 7777;
+        Machine machine = new Machine(proxyAddress, proxyPort);
         machine.startMachine();
     }
 }
